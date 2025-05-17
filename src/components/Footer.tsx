@@ -18,6 +18,9 @@ export default function Footer() {
               <Link href="/" className="text-sm text-muted-foreground hover:text-foreground">
                 ホーム
               </Link>
+              <Link href="/clubs" className="text-sm text-muted-foreground hover:text-foreground">
+                クラブ一覧
+              </Link>
               <Link href="/schedule" className="text-sm text-muted-foreground hover:text-foreground">
                 スケジュール
               </Link>

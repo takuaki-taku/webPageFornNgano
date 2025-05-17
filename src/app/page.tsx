@@ -1,11 +1,13 @@
+
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowRight, Calendar, Info } from "lucide-react"
-import { getLatestAnnouncements, getUpcomingSchedules } from "@/lib/data"
+import { ArrowRight, Calendar, Info, Users, MapPin } from "lucide-react"
+import { getLatestAnnouncements, getUpcomingSchedules, getAllTeams } from "@/lib/data"
 
 export default function Home() {
   const announcements = getLatestAnnouncements(3)
   const schedules = getUpcomingSchedules(3)
+  const clubs = getAllTeams().slice(0, 3) // トップページには3つだけ表示
 
   return (
     <div className="flex flex-col gap-12 pb-8 pt-6 md:gap-16 md:pb-16 md:pt-10 lg:pb-24 lg:pt-16">
@@ -30,15 +32,15 @@ export default function Home() {
                 スケジュールを見る
               </Link>
               <Link
-                href="/announcement"
+                href="/clubs"
                 className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-8 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               >
-                お知らせを見る
+                クラブを探す
               </Link>
             </div>
           </div>
           <Image
-            src="/placeholder.svg?height=400&width=600"
+            src="/toppage.png"
             width={600}
             height={400}
             alt="ピックルボールプレイ風景"
@@ -128,6 +130,49 @@ export default function Home() {
         </div>
       </section>
 
+      {/* クラブ紹介 */}
+      <section className="container px-4 md:px-6">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            <h2 className="text-2xl font-bold tracking-tight">県内のクラブ</h2>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {clubs.map((club) => (
+              <Link
+                key={club.id}
+                href={`/club/${club.id}`}
+                className="group overflow-hidden rounded-lg border shadow-sm transition-all hover:shadow-md"
+              >
+                <div className="aspect-video overflow-hidden">
+                  <Image
+                    src={club.imageUrl || "/placeholder.svg?height=200&width=300"}
+                    alt={club.name}
+                    width={300}
+                    height={200}
+                    className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-4">
+                  <h3 className="text-xl font-bold group-hover:text-primary">{club.name}</h3>
+                  <div className="mt-2 flex items-center text-sm text-muted-foreground">
+                    <MapPin className="mr-1 h-4 w-4" />
+                    {club.location}
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{club.shortDescription}</p>
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div className="flex justify-end">
+            <Link href="/clubs" className="inline-flex items-center text-sm font-medium text-primary hover:underline">
+              すべてのクラブを見る
+              <ArrowRight className="ml-1 h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 最新のお知らせ */}
       <section className="container px-4 md:px-6">
         <div className="flex flex-col gap-4">
@@ -175,7 +220,9 @@ export default function Home() {
               <div key={schedule.id} className="flex flex-col space-y-2 rounded-lg border p-4 shadow-sm">
                 <div className="flex items-center gap-2">
                   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: schedule.teamColor }}></div>
-                  <span className="font-medium">{schedule.teamName}</span>
+                  <Link href={`/club/${schedule.teamId}`} className="font-medium hover:text-primary hover:underline">
+                    {schedule.teamName}
+                  </Link>
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {schedule.date} {schedule.time}

@@ -13,7 +13,7 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/placeholder.svg?height=32&width=32"
+            src="/naganologo.png"
             alt="長野県ピックルボールクラブ"
             width={32}
             height={32}
@@ -26,6 +26,9 @@ export default function Header() {
         <nav className="hidden md:flex md:gap-6">
           <Link href="/" className="text-sm font-medium transition-colors hover:text-primary">
             ホーム
+          </Link>
+          <Link href="/clubs" className="text-sm font-medium transition-colors hover:text-primary">
+            クラブ一覧
           </Link>
           <Link href="/schedule" className="text-sm font-medium transition-colors hover:text-primary">
             スケジュール
@@ -55,6 +58,13 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               ホーム
+            </Link>
+            <Link
+              href="/clubs"
+              className="text-sm font-medium transition-colors hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              クラブ一覧
             </Link>
             <Link
               href="/schedule"
