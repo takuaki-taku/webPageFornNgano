@@ -1,4 +1,5 @@
-import { Calendar, MapPin, Clock } from "lucide-react"
+import Link from "next/link"
+import { Calendar, MapPin, Clock, CalendarDays } from "lucide-react"
 import { getSchedulesByTeam, teams } from "@/lib/data"
 
 export default function SchedulePage() {
@@ -7,7 +8,17 @@ export default function SchedulePage() {
   return (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">
       <div className="mx-auto max-w-4xl">
-        <h1 className="mb-8 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">スケジュール</h1>
+        <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">スケジュール</h1>
+          <Link
+            href="/schedule/calendar"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90"
+          >
+            <CalendarDays className="mr-2 h-4 w-4" />
+            月間カレンダー表示
+          </Link>
+        </div>
+
         <p className="mb-8 text-lg text-muted-foreground">
           長野県内のピックルボールチームの練習スケジュールです。
           参加を希望される場合は、各チームの連絡先にお問い合わせください。

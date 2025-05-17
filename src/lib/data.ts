@@ -56,6 +56,52 @@ export const schedules = [
     details: "初心者向け講習会を開催します。道具の貸し出しあります。",
     isPublic: true,
   },
+  // 同じチームの複数スケジュール例
+  {
+    id: "sched6",
+    teamId: "team1",
+    date: "2025-06-03",
+    time: "19:00 - 21:00",
+    location: "長野市北部体育館",
+    details: "夜間練習会。仕事帰りの方も参加しやすい時間帯です。",
+    isPublic: true,
+  },
+  {
+    id: "sched7",
+    teamId: "team2",
+    date: "2025-06-15",
+    time: "10:00 - 12:00",
+    location: "松本市総合体育館",
+    details: "初心者向け基礎練習会。ラケットの貸し出しあります。",
+    isPublic: true,
+  },
+  {
+    id: "sched8",
+    teamId: "team1",
+    date: "2025-06-08",
+    time: "14:00 - 16:00",
+    location: "長野市南長野運動公園",
+    details: "屋外コートでの練習会。天候により中止の場合あり。",
+    isPublic: true,
+  },
+  {
+    id: "sched9",
+    teamId: "team3",
+    date: "2025-06-20",
+    time: "18:00 - 20:00",
+    location: "上田市民体育館",
+    details: "ゲーム形式の練習会。チーム対抗戦を行います。",
+    isPublic: true,
+  },
+  {
+    id: "sched10",
+    teamId: "team4",
+    date: "2025-06-25",
+    time: "10:00 - 12:00",
+    location: "佐久市中央体育館",
+    details: "シニア向け練習会。60歳以上の方を対象としています。",
+    isPublic: true,
+  },
 ]
 
 // お知らせ情報
