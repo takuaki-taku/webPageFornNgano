@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react"
+import { ChevronLeft, ChevronRight, ArrowLeft, Check, Filter } from "lucide-react"
 import { schedules, teams } from "@/lib/data"
 
 // 日本語の月名と曜日名
@@ -34,6 +34,10 @@ export default function CalendarPage() {
   // 現在の年月を状態として保持
   const [currentDate, setCurrentDate] = useState(new Date())
 
+  // フィルター関連の状態
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(teams.map((team) => team.id)) // 初期状態ですべてのチームを選択
+
   // 前月へ移動
   const prevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1))
@@ -47,6 +51,24 @@ export default function CalendarPage() {
   // 今月へ移動
   const currentMonth = () => {
     setCurrentDate(new Date())
+  }
+
+  // チームの選択状態を切り替える
+  const toggleTeam = (teamId: string) => {
+    if (selectedTeams.includes(teamId)) {
+      setSelectedTeams(selectedTeams.filter((id) => id !== teamId))
+    } else {
+      setSelectedTeams([...selectedTeams, teamId])
+    }
+  }
+
+  // すべてのチームを選択/解除する
+  const toggleAllTeams = () => {
+    if (selectedTeams.length === teams.length) {
+      setSelectedTeams([])
+    } else {
+      setSelectedTeams(teams.map((team) => team.id))
+    }
   }
 
   // カレンダーに表示する日付の配列を生成
@@ -109,10 +131,12 @@ export default function CalendarPage() {
     })
   }
 
-  // 特定の日のスケジュールを取得
+  // 特定の日のスケジュールを取得（フィルター適用）
   const getSchedulesForDate = (date: Date): Schedule[] => {
     const dateString = formatDate(date)
-    return getEnrichedSchedules().filter((schedule) => schedule.date === dateString)
+    return getEnrichedSchedules()
+      .filter((schedule) => schedule.date === dateString)
+      .filter((schedule) => selectedTeams.includes(schedule.teamId)) // 選択されたチームのみフィルタリング
   }
 
   // カレンダーの日付配列
@@ -151,8 +175,52 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        <div className="mb-4 text-center text-xl font-semibold">
-          {currentDate.getFullYear()}年 {MONTHS[currentDate.getMonth()]}
+        <div className="mb-4 flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <div className="text-xl font-semibold">
+            {currentDate.getFullYear()}年 {MONTHS[currentDate.getMonth()]}
+          </div>
+
+          <div className="relative">
+            <button
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="inline-flex items-center justify-center rounded-md border bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-muted"
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              クラブでフィルター
+              {selectedTeams.length !== teams.length && (
+                <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+                  {selectedTeams.length}
+                </span>
+              )}
+            </button>
+
+            {isFilterOpen && (
+              <div className="absolute right-0 z-10 mt-2 w-64 origin-top-right rounded-md border bg-background p-4 shadow-lg">
+                <div className="mb-2 flex items-center justify-between">
+                  <h3 className="text-sm font-medium">クラブを選択</h3>
+                  <button onClick={toggleAllTeams} className="text-xs text-primary hover:underline">
+                    {selectedTeams.length === teams.length ? "すべて解除" : "すべて選択"}
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {teams.map((team) => (
+                    <div key={team.id} className="flex items-center">
+                      <button
+                        onClick={() => toggleTeam(team.id)}
+                        className="group flex w-full items-center rounded-md px-2 py-1 hover:bg-muted"
+                      >
+                        <div className="mr-2 flex h-4 w-4 items-center justify-center rounded border">
+                          {selectedTeams.includes(team.id) && <Check className="h-3 w-3 text-primary" />}
+                        </div>
+                        <div className="mr-2 h-3 w-3 rounded-full" style={{ backgroundColor: team.color }}></div>
+                        <span className="text-sm">{team.name}</span>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="rounded-lg border shadow-sm">
@@ -223,7 +291,12 @@ export default function CalendarPage() {
           <h3 className="mb-2 font-medium">チーム凡例</h3>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-5">
             {teams.map((team) => (
-              <div key={team.id} className="flex items-center gap-2">
+              <div
+                key={team.id}
+                className={`flex items-center gap-2 rounded-md p-1 ${
+                  selectedTeams.includes(team.id) ? "" : "opacity-40"
+                }`}
+              >
                 <div className="h-3 w-3 rounded-full" style={{ backgroundColor: team.color }}></div>
                 <span className="text-sm">{team.name}</span>
               </div>

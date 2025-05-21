@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Shield } from "lucide-react"
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -13,13 +13,13 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/naganologo.png"
-            alt="長野県ピックルボールクラブ"
+            src="/logodesign.png"
+            alt="長野県ピックルボール協会"
             width={32}
             height={32}
             className="rounded-md"
           />
-          <span className="hidden font-bold sm:inline-block">長野県ピックルボールクラブ</span>
+          <span className="hidden font-bold sm:inline-block">長野県ピックルボール協会</span>
         </Link>
 
         {/* デスクトップナビゲーション */}
@@ -35,6 +35,10 @@ export default function Header() {
           </Link>
           <Link href="/announcement" className="text-sm font-medium transition-colors hover:text-primary">
             お知らせ
+          </Link>
+          <Link href="/admin" className="flex items-center text-sm font-medium transition-colors hover:text-primary">
+            <Shield className="mr-1 h-4 w-4" />
+            管理
           </Link>
         </nav>
 
@@ -79,6 +83,14 @@ export default function Header() {
               onClick={() => setIsMenuOpen(false)}
             >
               お知らせ
+            </Link>
+            <Link
+              href="/admin"
+              className="flex items-center text-sm font-medium transition-colors hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <Shield className="mr-1 h-4 w-4" />
+              管理
             </Link>
           </nav>
         </div>

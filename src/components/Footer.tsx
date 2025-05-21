@@ -6,9 +6,9 @@ export default function Footer() {
       <div className="container py-8 md:py-12">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           <div>
-            <h3 className="mb-4 text-lg font-semibold">長野県ピックルボールクラブ</h3>
+            <h3 className="mb-4 text-lg font-semibold">長野県ピックルボール協会</h3>
             <p className="text-sm text-muted-foreground">
-              長野県内のピックルボール愛好家に向けた情報サイトです。
+              長野県内のピックルボール愛好家に向けた公式サイトです。
               県内チームの活動スケジュールと大会・イベント情報を集約しています。
             </p>
           </div>
@@ -41,7 +41,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} 長野県ピックルボールクラブ. All rights reserved.
+          &copy; {new Date().getFullYear()} 長野県ピックルボール協会. All rights reserved.
         </div>
       </div>
     </footer>
