@@ -1,42 +1,79 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getClubs, addClub } from "@/lib/db"
+import { getClubById, updateClub, deleteClub } from "@/lib/db.server"
 
-// クラブ一覧の取得
-export async function GET() {
+// 特定のクラブの取得
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const clubs = getClubs()
-    return NextResponse.json(clubs)
+    const id = params.id
+    const club = getClubById(id)
+
+    if (!club) {
+      return NextResponse.json({ error: "クラブが見つかりません" }, { status: 404 })
+    }
+
+    return NextResponse.json(club)
   } catch (error) {
-    console.error("クラブ一覧の取得に失敗しました:", error)
-    return NextResponse.json({ error: "クラブ一覧の取得に失敗しました" }, { status: 500 })
+    console.error("クラブの取得に失敗しました:", error)
+    return NextResponse.json({ error: "クラブの取得に失敗しました" }, { status: 500 })
   }
 }
 
-// 新しいクラブの作成
-export async function POST(request: NextRequest) {
+// クラブの更新
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    const id = params.id
     const clubData = await request.json()
+
+    // 既存のクラブの確認
+    const existingClub = getClubById(id)
+    if (!existingClub) {
+      return NextResponse.json({ error: "クラブが見つかりません" }, { status: 404 })
+    }
 
     // 必須フィールドの検証
     if (!clubData.name || !clubData.location) {
       return NextResponse.json({ error: "クラブ名と地域は必須です" }, { status: 400 })
     }
 
-    // IDの生成（実際のアプリでは、より堅牢なID生成方法を使用することをお勧めします）
-    const newClub = {
-      id: `team${Date.now()}`,
+    // IDを確保
+    const updatedClub = {
       ...clubData,
+      id,
     }
 
-    const success = addClub(newClub)
+    const success = updateClub(updatedClub)
 
     if (success) {
-      return NextResponse.json(newClub, { status: 201 })
+      return NextResponse.json(updatedClub)
     } else {
-      return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+      return NextResponse.json({ error: "クラブの更新に失敗しました" }, { status: 500 })
     }
   } catch (error) {
-    console.error("クラブの作成に失敗しました:", error)
-    return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+    console.error("クラブの更新に失敗しました:", error)
+    return NextResponse.json({ error: "クラブの更新に失敗しました" }, { status: 500 })
+  }
+}
+
+// クラブの削除
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const id = params.id
+
+    // 既存のクラブの確認
+    const existingClub = getClubById(id)
+    if (!existingClub) {
+      return NextResponse.json({ error: "クラブが見つかりません" }, { status: 404 })
+    }
+
+    const success = deleteClub(id)
+
+    if (success) {
+      return NextResponse.json({ success: true })
+    } else {
+      return NextResponse.json({ error: "クラブの削除に失敗しました" }, { status: 500 })
+    }
+  } catch (error) {
+    console.error("クラブの削除に失敗しました:", error)
+    return NextResponse.json({ error: "クラブの削除に失敗しました" }, { status: 500 })
   }
 }

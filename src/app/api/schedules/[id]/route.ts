@@ -1,42 +1,79 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getClubs, addClub } from "@/lib/db"
+import { getScheduleById, updateSchedule, deleteSchedule } from "@/lib/db.server"
 
-// クラブ一覧の取得
-export async function GET() {
+// 特定のスケジュールの取得
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const clubs = getClubs()
-    return NextResponse.json(clubs)
+    const id = params.id
+    const schedule = getScheduleById(id)
+
+    if (!schedule) {
+      return NextResponse.json({ error: "スケジュールが見つかりません" }, { status: 404 })
+    }
+
+    return NextResponse.json(schedule)
   } catch (error) {
-    console.error("クラブ一覧の取得に失敗しました:", error)
-    return NextResponse.json({ error: "クラブ一覧の取得に失敗しました" }, { status: 500 })
+    console.error("スケジュールの取得に失敗しました:", error)
+    return NextResponse.json({ error: "スケジュールの取得に失敗しました" }, { status: 500 })
   }
 }
 
-// 新しいクラブの作成
-export async function POST(request: NextRequest) {
+// スケジュールの更新
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const clubData = await request.json()
+    const id = params.id
+    const scheduleData = await request.json()
+
+    // 既存のスケジュールの確認
+    const existingSchedule = getScheduleById(id)
+    if (!existingSchedule) {
+      return NextResponse.json({ error: "スケジュールが見つかりません" }, { status: 404 })
+    }
 
     // 必須フィールドの検証
-    if (!clubData.name || !clubData.location) {
-      return NextResponse.json({ error: "クラブ名と地域は必須です" }, { status: 400 })
+    if (!scheduleData.teamId || !scheduleData.date || !scheduleData.time || !scheduleData.location) {
+      return NextResponse.json({ error: "チーム、日付、時間、場所は必須です" }, { status: 400 })
     }
 
-    // IDの生成（実際のアプリでは、より堅牢なID生成方法を使用することをお勧めします）
-    const newClub = {
-      id: `team${Date.now()}`,
-      ...clubData,
+    // IDを確保
+    const updatedSchedule = {
+      ...scheduleData,
+      id,
     }
 
-    const success = addClub(newClub)
+    const success = updateSchedule(updatedSchedule)
 
     if (success) {
-      return NextResponse.json(newClub, { status: 201 })
+      return NextResponse.json(updatedSchedule)
     } else {
-      return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+      return NextResponse.json({ error: "スケジュールの更新に失敗しました" }, { status: 500 })
     }
   } catch (error) {
-    console.error("クラブの作成に失敗しました:", error)
-    return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+    console.error("スケジュールの更新に失敗しました:", error)
+    return NextResponse.json({ error: "スケジュールの更新に失敗しました" }, { status: 500 })
+  }
+}
+
+// スケジュールの削除
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const id = params.id
+
+    // 既存のスケジュールの確認
+    const existingSchedule = getScheduleById(id)
+    if (!existingSchedule) {
+      return NextResponse.json({ error: "スケジュールが見つかりません" }, { status: 404 })
+    }
+
+    const success = deleteSchedule(id)
+
+    if (success) {
+      return NextResponse.json({ success: true })
+    } else {
+      return NextResponse.json({ error: "スケジュールの削除に失敗しました" }, { status: 500 })
+    }
+  } catch (error) {
+    console.error("スケジュールの削除に失敗しました:", error)
+    return NextResponse.json({ error: "スケジュールの削除に失敗しました" }, { status: 500 })
   }
 }

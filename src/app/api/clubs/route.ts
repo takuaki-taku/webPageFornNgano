@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getClubs, addClub } from "@/lib/db"
+import { getClubs, addClub } from "@/lib/db.server"
 
 // クラブ一覧の取得
 export async function GET() {

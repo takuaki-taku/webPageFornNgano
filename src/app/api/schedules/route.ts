@@ -1,42 +1,42 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getClubs, addClub } from "@/lib/db"
+import { getSchedules, addSchedule } from "@/lib/db.server"
 
-// クラブ一覧の取得
+// スケジュール一覧の取得
 export async function GET() {
   try {
-    const clubs = getClubs()
-    return NextResponse.json(clubs)
+    const schedules = getSchedules()
+    return NextResponse.json(schedules)
   } catch (error) {
-    console.error("クラブ一覧の取得に失敗しました:", error)
-    return NextResponse.json({ error: "クラブ一覧の取得に失敗しました" }, { status: 500 })
+    console.error("スケジュール一覧の取得に失敗しました:", error)
+    return NextResponse.json({ error: "スケジュール一覧の取得に失敗しました" }, { status: 500 })
   }
 }
 
-// 新しいクラブの作成
+// 新しいスケジュールの作成
 export async function POST(request: NextRequest) {
   try {
-    const clubData = await request.json()
+    const scheduleData = await request.json()
 
     // 必須フィールドの検証
-    if (!clubData.name || !clubData.location) {
-      return NextResponse.json({ error: "クラブ名と地域は必須です" }, { status: 400 })
+    if (!scheduleData.teamId || !scheduleData.date || !scheduleData.time || !scheduleData.location) {
+      return NextResponse.json({ error: "チーム、日付、時間、場所は必須です" }, { status: 400 })
     }
 
-    // IDの生成（実際のアプリでは、より堅牢なID生成方法を使用することをお勧めします）
-    const newClub = {
-      id: `team${Date.now()}`,
-      ...clubData,
+    // IDの生成
+    const newSchedule = {
+      id: `sched${Date.now()}`,
+      ...scheduleData,
     }
 
-    const success = addClub(newClub)
+    const success = addSchedule(newSchedule)
 
     if (success) {
-      return NextResponse.json(newClub, { status: 201 })
+      return NextResponse.json(newSchedule, { status: 201 })
     } else {
-      return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+      return NextResponse.json({ error: "スケジュールの作成に失敗しました" }, { status: 500 })
     }
   } catch (error) {
-    console.error("クラブの作成に失敗しました:", error)
-    return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+    console.error("スケジュールの作成に失敗しました:", error)
+    return NextResponse.json({ error: "スケジュールの作成に失敗しました" }, { status: 500 })
   }
 }
