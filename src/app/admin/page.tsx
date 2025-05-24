@@ -5,7 +5,7 @@ import type React from "react"
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Shield, Users, Calendar, ArrowRight } from "lucide-react"
+import { Shield, Users, Calendar, ArrowRight, Info } from "lucide-react"
 
 export default function AdminPage() {
   const router = useRouter()
@@ -77,7 +77,7 @@ export default function AdminPage() {
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">管���画面</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">管理画面</h1>
           <button
             onClick={() => setIsLoggedIn(false)}
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"
@@ -86,7 +86,7 @@ export default function AdminPage() {
           </button>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/admin/clubs"
             className="group flex flex-col space-y-2 rounded-lg border p-6 shadow-sm transition-all hover:shadow-md"
@@ -113,6 +113,21 @@ export default function AdminPage() {
             <p className="text-muted-foreground">スケジュールの追加、編集、削除を行います。</p>
             <div className="flex items-center text-sm font-medium text-primary">
               スケジュール管理へ進む
+              <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </div>
+          </Link>
+
+          <Link
+            href="/admin/announcements"
+            className="group flex flex-col space-y-2 rounded-lg border p-6 shadow-sm transition-all hover:shadow-md"
+          >
+            <div className="flex items-center gap-2">
+              <Info className="h-6 w-6 text-primary" />
+              <h2 className="text-xl font-bold">お知らせ管理</h2>
+            </div>
+            <p className="text-muted-foreground">お知らせの追加、編集、削除を行います。</p>
+            <div className="flex items-center text-sm font-medium text-primary">
+              お知らせ管理へ進む
               <ArrowRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
           </Link>

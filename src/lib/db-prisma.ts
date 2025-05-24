@@ -190,6 +190,12 @@ export async function getAnnouncements() {
   })
 }
 
+export async function getAllAnnouncements() {
+  return prisma.announcement.findMany({
+    orderBy: { date: "desc" },
+  })
+}
+
 export async function getAnnouncementById(id: string) {
   return prisma.announcement.findUnique({
     where: { id },
@@ -201,5 +207,24 @@ export async function getLatestAnnouncements(count: number) {
     where: { isPublished: true },
     orderBy: { date: "desc" },
     take: count,
+  })
+}
+
+export async function createAnnouncement(data: any) {
+  return prisma.announcement.create({
+    data,
+  })
+}
+
+export async function updateAnnouncement(id: string, data: any) {
+  return prisma.announcement.update({
+    where: { id },
+    data,
+  })
+}
+
+export async function deleteAnnouncement(id: string) {
+  return prisma.announcement.delete({
+    where: { id },
   })
 }
