@@ -1,42 +1,129 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { getClubs, addClub } from "@/lib/db"
+// APIクライアント関数
 
-// クラブ一覧の取得
-export async function GET() {
-  try {
-    const clubs = getClubs()
-    return NextResponse.json(clubs)
-  } catch (error) {
-    console.error("クラブ一覧の取得に失敗しました:", error)
-    return NextResponse.json({ error: "クラブ一覧の取得に失敗しました" }, { status: 500 })
+// クラブ関連のAPI
+export async function fetchClubs() {
+  const response = await fetch("/api/clubs")
+  if (!response.ok) {
+    throw new Error("クラブの取得に失敗しました")
   }
+  return response.json()
 }
 
-// 新しいクラブの作成
-export async function POST(request: NextRequest) {
-  try {
-    const clubData = await request.json()
-
-    // 必須フィールドの検証
-    if (!clubData.name || !clubData.location) {
-      return NextResponse.json({ error: "クラブ名と地域は必須です" }, { status: 400 })
-    }
-
-    // IDの生成（実際のアプリでは、より堅牢なID生成方法を使用することをお勧めします）
-    const newClub = {
-      id: `team${Date.now()}`,
-      ...clubData,
-    }
-
-    const success = addClub(newClub)
-
-    if (success) {
-      return NextResponse.json(newClub, { status: 201 })
-    } else {
-      return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
-    }
-  } catch (error) {
-    console.error("クラブの作成に失敗しました:", error)
-    return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
+export async function fetchClubById(id: string) {
+  const response = await fetch(`/api/clubs/${id}`)
+  if (!response.ok) {
+    throw new Error("クラブの取得に失敗しました")
   }
+  return response.json()
+}
+
+export async function createClub(clubData: any) {
+  const response = await fetch("/api/clubs", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(clubData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || "クラブの作成に失敗しました")
+  }
+
+  return response.json()
+}
+
+export async function updateClubById(id: string, clubData: any) {
+  const response = await fetch(`/api/clubs/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(clubData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || "クラブの更新に失敗しました")
+  }
+
+  return response.json()
+}
+
+export async function deleteClubById(id: string) {
+  const response = await fetch(`/api/clubs/${id}`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || "クラブの削除に失敗しました")
+  }
+
+  return response.json()
+}
+
+// スケジュール関連のAPI
+export async function fetchSchedules() {
+  const response = await fetch("/api/schedules")
+  if (!response.ok) {
+    throw new Error("スケジュールの取得に失敗しました")
+  }
+  return response.json()
+}
+
+export async function fetchScheduleById(id: string) {
+  const response = await fetch(`/api/schedules/${id}`)
+  if (!response.ok) {
+    throw new Error("スケジュールの取得に失敗しました")
+  }
+  return response.json()
+}
+
+export async function createSchedule(scheduleData: any) {
+  const response = await fetch("/api/schedules", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(scheduleData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || "スケジュールの作成に失敗しました")
+  }
+
+  return response.json()
+}
+
+export async function updateScheduleById(id: string, scheduleData: any) {
+  const response = await fetch(`/api/schedules/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(scheduleData),
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || "スケジュールの更新に失敗しました")
+  }
+
+  return response.json()
+}
+
+export async function deleteScheduleById(id: string) {
+  const response = await fetch(`/api/schedules/${id}`, {
+    method: "DELETE",
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json()
+    throw new Error(errorData.error || "スケジュールの削除に失敗しました")
+  }
+
+  return response.json()
 }

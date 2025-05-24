@@ -108,7 +108,14 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   addSchedule: async (scheduleData) => {
     set({ loading: true, error: null })
     try {
-      const newSchedule = await api.createSchedule(scheduleData)
+      // teamId を clubId に変換（既存コードとの互換性のため）
+      const data = { ...scheduleData }
+      if (data.teamId && !data.clubId) {
+        data.clubId = data.teamId
+        delete data.teamId
+      }
+
+      const newSchedule = await api.createSchedule(data)
       set((state) => ({
         schedules: [...state.schedules, newSchedule],
         loading: false,
@@ -124,7 +131,14 @@ export const useScheduleStore = create<ScheduleState>((set, get) => ({
   updateSchedule: async (scheduleData) => {
     set({ loading: true, error: null })
     try {
-      const updatedSchedule = await api.updateScheduleById(scheduleData.id, scheduleData)
+      // teamId を clubId に変換（既存コードとの互換性のため）
+      const data = { ...scheduleData }
+      if (data.teamId && !data.clubId) {
+        data.clubId = data.teamId
+        delete data.teamId
+      }
+
+      const updatedSchedule = await api.updateScheduleById(data.id, data)
       set((state) => ({
         schedules: state.schedules.map((schedule) => (schedule.id === updatedSchedule.id ? updatedSchedule : schedule)),
         loading: false,

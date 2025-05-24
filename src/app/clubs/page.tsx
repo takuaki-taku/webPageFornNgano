@@ -1,10 +1,10 @@
 import Link from "next/link"
 import Image from "next/image"
 import { MapPin, Users, ArrowRight } from "lucide-react"
-import { getAllTeams } from "@/lib/data"
+import { getClubs } from "@/lib/db-prisma"
 
-export default function ClubsPage() {
-  const clubs = getAllTeams()
+export default async function ClubsPage() {
+  const clubs = await getClubs()
 
   return (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">

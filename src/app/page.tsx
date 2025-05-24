@@ -1,12 +1,26 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Calendar, Info, Users, MapPin } from "lucide-react"
-import { getLatestAnnouncements, getUpcomingSchedules, getAllTeams } from "@/lib/data"
+import { getLatestAnnouncements, getClubs, getSchedules } from "@/lib/db-prisma"
 
-export default function Home() {
-  const announcements = getLatestAnnouncements(3)
-  const schedules = getUpcomingSchedules(3)
-  const clubs = getAllTeams().slice(0, 3) // トップページには3つだけ表示
+export default async function Home() {
+  const announcements = await getLatestAnnouncements(3)
+  const clubs = await getClubs()
+  const allSchedules = await getSchedules()
+
+  // 直近のスケジュールを取得（3件）
+  const schedules = allSchedules
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .slice(0, 3)
+    .map((schedule) => ({
+      ...schedule,
+      teamName: schedule.club.name,
+      teamColor: schedule.club.color,
+      teamId: schedule.clubId,
+    }))
+
+  // トップページには3つだけ表示
+  const topClubs = clubs.slice(0, 3)
 
   return (
     <div className="flex flex-col gap-12 pb-8 pt-6 md:gap-16 md:pb-16 md:pt-10 lg:pb-24 lg:pt-16">
@@ -137,7 +151,7 @@ export default function Home() {
             <h2 className="text-2xl font-bold tracking-tight">県内のクラブ</h2>
           </div>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {clubs.map((club) => (
+            {topClubs.map((club) => (
               <Link
                 key={club.id}
                 href={`/club/${club.id}`}

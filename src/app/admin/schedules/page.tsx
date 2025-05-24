@@ -4,24 +4,37 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Plus, Pencil, Trash2, Search } from "lucide-react"
-import { getAllTeams } from "@/lib/data"
 import { useScheduleStore } from "@/lib/store"
 
 export default function SchedulesAdminPage() {
   const router = useRouter()
-  const { schedules, deleteSchedule } = useScheduleStore()
+  const { schedules, deleteSchedule, fetchSchedules } = useScheduleStore()
   const [teams, setTeams] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [isConfirmingDelete, setIsConfirmingDelete] = useState<string | null>(null)
 
-  // チームデータの読み込み
+  // チームデータとスケジュールデータの読み込み
   useEffect(() => {
-    setTeams(getAllTeams())
-  }, [])
+    const loadData = async () => {
+      try {
+        // スケジュールデータの読み込み
+        await fetchSchedules()
+
+        // クラブデータの読み込み
+        const response = await fetch("/api/clubs")
+        const clubsData = await response.json()
+        setTeams(clubsData)
+      } catch (error) {
+        console.error("データの読み込みに失敗しました:", error)
+      }
+    }
+
+    loadData()
+  }, [fetchSchedules])
 
   // 検索フィルター
   const filteredSchedules = schedules.filter((schedule) => {
-    const team = teams.find((t) => t.id === schedule.teamId)
+    const team = teams.find((t) => t.id === (schedule.clubId || schedule.teamId))
     const teamName = team ? team.name : ""
 
     return (
@@ -49,7 +62,8 @@ export default function SchedulesAdminPage() {
   }
 
   // チーム名を取得
-  const getTeamName = (teamId: string) => {
+  const getTeamName = (schedule: any) => {
+    const teamId = schedule.clubId || schedule.teamId
     const team = teams.find((t) => t.id === teamId)
     return team ? team.name : "不明なチーム"
   }
@@ -101,7 +115,7 @@ export default function SchedulesAdminPage() {
                 {filteredSchedules.length > 0 ? (
                   filteredSchedules.map((schedule) => (
                     <tr key={schedule.id} className="border-b">
-                      <td className="px-4 py-3 text-sm">{getTeamName(schedule.teamId)}</td>
+                      <td className="px-4 py-3 text-sm">{getTeamName(schedule)}</td>
                       <td className="px-4 py-3 text-sm">{schedule.date}</td>
                       <td className="px-4 py-3 text-sm">{schedule.time}</td>
                       <td className="px-4 py-3 text-sm">{schedule.location}</td>

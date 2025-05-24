@@ -1,9 +1,23 @@
 import Link from "next/link"
 import { Calendar, MapPin, Clock, CalendarDays } from "lucide-react"
-import { getSchedulesByTeam, teams } from "@/lib/data"
+import { getSchedules, getClubs } from "@/lib/db-prisma"
 
-export default function SchedulePage() {
-  const schedulesByTeam = getSchedulesByTeam()
+export default async function SchedulePage() {
+  const allSchedules = await getSchedules()
+  const clubs = await getClubs()
+
+  // スケジュールをクラブごとにグループ化
+  const schedulesByTeam: Record<string, any[]> = {}
+
+  clubs.forEach((club) => {
+    schedulesByTeam[club.id] = allSchedules
+      .filter((schedule) => schedule.clubId === club.id)
+      .map((schedule) => ({
+        ...schedule,
+        teamName: schedule.club.name,
+        teamColor: schedule.club.color,
+      }))
+  })
 
   return (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">
@@ -25,17 +39,17 @@ export default function SchedulePage() {
         </p>
 
         <div className="space-y-12">
-          {teams.map((team) => {
-            const teamSchedules = schedulesByTeam[team.id] || []
+          {clubs.map((club) => {
+            const teamSchedules = schedulesByTeam[club.id] || []
 
             if (teamSchedules.length === 0) return null
 
             return (
-              <div key={team.id} className="space-y-4">
+              <div key={club.id} className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <div className="h-4 w-4 rounded-full" style={{ backgroundColor: team.color }}></div>
-                  <h2 className="text-2xl font-bold">{team.name}</h2>
-                  <span className="text-sm text-muted-foreground">({team.location})</span>
+                  <div className="h-4 w-4 rounded-full" style={{ backgroundColor: club.color }}></div>
+                  <h2 className="text-2xl font-bold">{club.name}</h2>
+                  <span className="text-sm text-muted-foreground">({club.location})</span>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">

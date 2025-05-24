@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { notFound } from "next/navigation"
 import { ArrowLeft, MapPin, Users, Calendar, Clock, ExternalLink, Mail, Phone } from "lucide-react"
-import { getTeamById, getTeamSchedules } from "@/lib/data"
+import { getClubById, getSchedulesByClubId } from "@/lib/db-prisma"
 
 interface ClubDetailPageProps {
   params: {
@@ -10,14 +10,14 @@ interface ClubDetailPageProps {
   }
 }
 
-export default function ClubDetailPage({ params }: ClubDetailPageProps) {
-  const club = getTeamById(params.id)
+export default async function ClubDetailPage({ params }: ClubDetailPageProps) {
+  const club = await getClubById(params.id)
 
   if (!club) {
     notFound()
   }
 
-  const schedules = getTeamSchedules(club.id)
+  const schedules = await getSchedulesByClubId(club.id)
 
   return (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">
@@ -161,11 +161,11 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
               </section>
 
               {/* 写真ギャラリー */}
-              {club.galleryImages && club.galleryImages.length > 0 && (
+              {club.galleryImages && Array.isArray(club.galleryImages) && club.galleryImages.length > 0 && (
                 <section>
                   <h2 className="mb-4 text-2xl font-bold">写真ギャラリー</h2>
                   <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-                    {club.galleryImages.map((image, index) => (
+                    {(club.galleryImages as any[]).map((image, index) => (
                       <div key={index} className="overflow-hidden rounded-lg">
                         <Image
                           src={image.url || "/placeholder.svg"}

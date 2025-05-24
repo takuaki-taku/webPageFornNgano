@@ -7,6 +7,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save, AlertCircle } from "lucide-react"
 import { useClubStore } from "@/lib/store"
+import ImageUpload from "@/components/ImageUpload"
+import GalleryImageUpload from "@/components/GalleryImageUpload"
 
 export default function NewClubPage() {
   const router = useRouter()
@@ -27,6 +29,7 @@ export default function NewClubPage() {
     phone: "",
     website: "",
     imageUrl: "",
+    galleryImages: [] as { url: string; alt?: string }[],
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isSaving, setIsSaving] = useState(false)
@@ -232,21 +235,12 @@ export default function NewClubPage() {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="imageUrl" className="text-sm font-medium">
-                画像URL
-              </label>
-              <input
-                id="imageUrl"
-                name="imageUrl"
-                type="text"
+              <label className="text-sm font-medium">メイン画像</label>
+              <ImageUpload
                 value={formData.imageUrl}
-                onChange={handleChange}
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                placeholder="/images/club.jpg"
+                onChange={(url) => setFormData((prev) => ({ ...prev, imageUrl: url }))}
+                disabled={isSaving}
               />
-              <p className="text-xs text-muted-foreground">
-                画像のURLを入力してください。空の場合はプレースホルダー画像が使用されます。
-              </p>
             </div>
           </div>
 
@@ -378,6 +372,20 @@ export default function NewClubPage() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* ギャラリー画像 */}
+          <div className="space-y-6 rounded-lg border p-6 shadow-sm">
+            <h2 className="text-xl font-semibold">ギャラリー画像</h2>
+            <GalleryImageUpload
+              images={formData.galleryImages}
+              onChange={(images) => setFormData((prev) => ({ ...prev, galleryImages: images }))}
+              disabled={isSaving}
+              maxImages={6}
+            />
+            <p className="text-sm text-muted-foreground">
+              クラブの活動風景や施設の写真を追加できます。最大6枚まで追加可能です。
+            </p>
           </div>
 
           <div className="flex items-center justify-end space-x-4">

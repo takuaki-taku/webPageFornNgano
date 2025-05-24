@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { ArrowRight, Calendar } from "lucide-react"
-import { announcements } from "@/lib/data"
+import { getAnnouncements } from "@/lib/db-prisma"
 
-export default function AnnouncementPage() {
+export default async function AnnouncementPage() {
+  const announcements = await getAnnouncements()
+
   // 日付の新しい順に並べ替え
   const sortedAnnouncements = [...announcements].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 

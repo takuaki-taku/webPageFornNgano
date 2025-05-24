@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { ArrowLeft, Calendar } from "lucide-react"
-import { getAnnouncementById } from "@/lib/data"
+import { getAnnouncementById } from "@/lib/db-prisma"
 import { notFound } from "next/navigation"
 
 interface AnnouncementDetailPageProps {
@@ -9,8 +9,8 @@ interface AnnouncementDetailPageProps {
   }
 }
 
-export default function AnnouncementDetailPage({ params }: AnnouncementDetailPageProps) {
-  const announcement = getAnnouncementById(params.id)
+export default async function AnnouncementDetailPage({ params }: AnnouncementDetailPageProps) {
+  const announcement = await getAnnouncementById(params.id)
 
   if (!announcement) {
     notFound()

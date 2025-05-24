@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save } from "lucide-react"
-import { getAllTeams } from "@/lib/data"
 import { useScheduleStore } from "@/lib/store"
 
 export default function NewSchedulePage() {
@@ -14,7 +13,7 @@ export default function NewSchedulePage() {
   const { addSchedule } = useScheduleStore()
   const [teams, setTeams] = useState<any[]>([])
   const [formData, setFormData] = useState({
-    teamId: "",
+    clubId: "",
     date: "",
     time: "",
     location: "",
@@ -26,7 +25,17 @@ export default function NewSchedulePage() {
 
   // チームデータの読み込み
   useEffect(() => {
-    setTeams(getAllTeams())
+    const loadTeams = async () => {
+      try {
+        const response = await fetch("/api/clubs")
+        const clubsData = await response.json()
+        setTeams(clubsData)
+      } catch (error) {
+        console.error("クラブデータの読み込みに失敗しました:", error)
+      }
+    }
+
+    loadTeams()
   }, [])
 
   // フォーム入力の処理
@@ -60,8 +69,8 @@ export default function NewSchedulePage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.teamId) {
-      newErrors.teamId = "クラブを選択してください"
+    if (!formData.clubId) {
+      newErrors.clubId = "クラブを選択してください"
     }
 
     if (!formData.date) {
@@ -81,7 +90,7 @@ export default function NewSchedulePage() {
   }
 
   // フォーム送信の処理
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (!validateForm()) {
@@ -90,19 +99,16 @@ export default function NewSchedulePage() {
 
     setIsSaving(true)
 
-    // 新しいスケジュールIDの生成（実際のアプリでは、バックエンドでIDを生成することが多い）
-    const newScheduleId = `sched${Date.now()}`
+    try {
+      // スケジュールの追加
+      await addSchedule(formData)
 
-    // スケジュールの追加
-    addSchedule({
-      id: newScheduleId,
-      ...formData,
-    })
-
-    // スケジュール一覧ページにリダイレクト
-    setTimeout(() => {
+      // スケジュール一覧ページにリダイレクト
       router.push("/admin/schedules")
-    }, 500)
+    } catch (error) {
+      console.error("スケジュールの追加に失敗しました:", error)
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -122,16 +128,16 @@ export default function NewSchedulePage() {
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-6 rounded-lg border p-6 shadow-sm">
             <div className="space-y-2">
-              <label htmlFor="teamId" className="text-sm font-medium">
+              <label htmlFor="clubId" className="text-sm font-medium">
                 クラブ <span className="text-destructive">*</span>
               </label>
               <select
-                id="teamId"
-                name="teamId"
-                value={formData.teamId}
+                id="clubId"
+                name="clubId"
+                value={formData.clubId}
                 onChange={handleChange}
                 className={`w-full rounded-md border ${
-                  errors.teamId ? "border-destructive" : "border-input"
+                  errors.clubId ? "border-destructive" : "border-input"
                 } bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
               >
                 <option value="">クラブを選択してください</option>
@@ -141,7 +147,7 @@ export default function NewSchedulePage() {
                   </option>
                 ))}
               </select>
-              {errors.teamId && <p className="text-xs text-destructive">{errors.teamId}</p>}
+              {errors.clubId && <p className="text-xs text-destructive">{errors.clubId}</p>}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

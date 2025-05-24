@@ -1,10 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getClubs, addClub } from "@/lib/db.server"
+import { getClubs, createClub } from "@/lib/db-prisma"
 
 // クラブ一覧の取得
 export async function GET() {
   try {
-    const clubs = getClubs()
+    const clubs = await getClubs()
     return NextResponse.json(clubs)
   } catch (error) {
     console.error("クラブ一覧の取得に失敗しました:", error)
@@ -18,23 +18,12 @@ export async function POST(request: NextRequest) {
     const clubData = await request.json()
 
     // 必須フィールドの検証
-    if (!clubData.name || !clubData.location) {
-      return NextResponse.json({ error: "クラブ名と地域は必須です" }, { status: 400 })
+    if (!clubData.name || !clubData.location || !clubData.shortDescription) {
+      return NextResponse.json({ error: "クラブ名、地域、簡単な説明は必須です" }, { status: 400 })
     }
 
-    // IDの生成（実際のアプリでは、より堅牢なID生成方法を使用することをお勧めします）
-    const newClub = {
-      id: `team${Date.now()}`,
-      ...clubData,
-    }
-
-    const success = addClub(newClub)
-
-    if (success) {
-      return NextResponse.json(newClub, { status: 201 })
-    } else {
-      return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })
-    }
+    const newClub = await createClub(clubData)
+    return NextResponse.json(newClub, { status: 201 })
   } catch (error) {
     console.error("クラブの作成に失敗しました:", error)
     return NextResponse.json({ error: "クラブの作成に失敗しました" }, { status: 500 })

@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ArrowLeft, Save } from "lucide-react"
-import { getAllTeams } from "@/lib/data"
 import { useScheduleStore } from "@/lib/store"
 
 interface ScheduleEditPageProps {
@@ -21,7 +20,7 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
   const [teams, setTeams] = useState<any[]>([])
   const [formData, setFormData] = useState({
     id: "",
-    teamId: "",
+    clubId: "",
     date: "",
     time: "",
     location: "",
@@ -34,7 +33,17 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
 
   // チームデータの読み込み
   useEffect(() => {
-    setTeams(getAllTeams())
+    const loadTeams = async () => {
+      try {
+        const response = await fetch("/api/clubs")
+        const clubsData = await response.json()
+        setTeams(clubsData)
+      } catch (error) {
+        console.error("クラブデータの読み込みに失敗しました:", error)
+      }
+    }
+
+    loadTeams()
   }, [])
 
   // スケジュールデータの読み込み
@@ -43,7 +52,7 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
     if (schedule) {
       setFormData({
         id: schedule.id,
-        teamId: schedule.teamId,
+        clubId: schedule.clubId || schedule.teamId, // 互換性のため両方チェック
         date: schedule.date,
         time: schedule.time,
         location: schedule.location,
@@ -87,8 +96,8 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
 
-    if (!formData.teamId) {
-      newErrors.teamId = "クラブを選択してください"
+    if (!formData.clubId) {
+      newErrors.clubId = "クラブを選択してください"
     }
 
     if (!formData.date) {
@@ -120,17 +129,19 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
 
     // スケジュール情報の更新
     updateSchedule(formData)
+      .then(() => {
+        setIsSaving(false)
+        setSaveSuccess(true)
 
-    // 保存成功の表示
-    setTimeout(() => {
-      setIsSaving(false)
-      setSaveSuccess(true)
-
-      // 3秒後に成功メッセージを消す
-      setTimeout(() => {
-        setSaveSuccess(false)
-      }, 3000)
-    }, 500)
+        // 3秒後に成功メッセージを消す
+        setTimeout(() => {
+          setSaveSuccess(false)
+        }, 3000)
+      })
+      .catch((error) => {
+        console.error("スケジュールの更新に失敗しました:", error)
+        setIsSaving(false)
+      })
   }
 
   return (
@@ -150,16 +161,16 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-6 rounded-lg border p-6 shadow-sm">
             <div className="space-y-2">
-              <label htmlFor="teamId" className="text-sm font-medium">
+              <label htmlFor="clubId" className="text-sm font-medium">
                 クラブ <span className="text-destructive">*</span>
               </label>
               <select
-                id="teamId"
-                name="teamId"
-                value={formData.teamId}
+                id="clubId"
+                name="clubId"
+                value={formData.clubId}
                 onChange={handleChange}
                 className={`w-full rounded-md border ${
-                  errors.teamId ? "border-destructive" : "border-input"
+                  errors.clubId ? "border-destructive" : "border-input"
                 } bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`}
               >
                 <option value="">クラブを選択してください</option>
@@ -169,7 +180,7 @@ export default function ScheduleEditPage({ params }: ScheduleEditPageProps) {
                   </option>
                 ))}
               </select>
-              {errors.teamId && <p className="text-xs text-destructive">{errors.teamId}</p>}
+              {errors.clubId && <p className="text-xs text-destructive">{errors.clubId}</p>}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

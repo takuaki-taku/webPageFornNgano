@@ -1,9 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, ArrowLeft, Check, Filter } from "lucide-react"
-import { schedules, teams } from "@/lib/data"
 
 // 日本語の月名と曜日名
 const MONTHS = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"]
@@ -33,10 +32,42 @@ function formatDate(date: Date): string {
 export default function CalendarPage() {
   // 現在の年月を状態として保持
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [schedules, setSchedules] = useState<any[]>([])
+  const [teams, setTeams] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   // フィルター関連の状態
   const [isFilterOpen, setIsFilterOpen] = useState(false)
-  const [selectedTeams, setSelectedTeams] = useState<string[]>(teams.map((team) => team.id)) // 初期状態ですべてのチームを選択
+  const [selectedTeams, setSelectedTeams] = useState<string[]>([])
+
+  // データの読み込み
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [schedulesData, clubsData] = await Promise.all([
+          fetch("/api/schedules").then((res) => res.json()),
+          fetch("/api/clubs").then((res) => res.json()),
+        ])
+
+        setSchedules(
+          schedulesData.map((schedule: any) => ({
+            ...schedule,
+            teamId: schedule.clubId, // 互換性のため
+            teamName: schedule.club.name,
+            teamColor: schedule.club.color,
+          })),
+        )
+        setTeams(clubsData)
+        setSelectedTeams(clubsData.map((club: any) => club.id))
+        setLoading(false)
+      } catch (error) {
+        console.error("データの読み込みに失敗しました:", error)
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [])
 
   // 前月へ移動
   const prevMonth = () => {
@@ -141,6 +172,29 @@ export default function CalendarPage() {
 
   // カレンダーの日付配列
   const calendarDays = generateCalendarDays()
+
+  if (loading) {
+    return (
+      <div className="container flex min-h-[400px] items-center justify-center px-4 py-12 md:px-6 md:py-16 lg:py-20">
+        <div className="flex items-center">
+          <svg
+            className="h-5 w-5 animate-spin text-primary"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <span className="ml-2">読み込み中...</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">

@@ -77,7 +77,7 @@ export default function AdminPage() {
     <div className="container px-4 py-12 md:px-6 md:py-16 lg:py-20">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 flex items-center justify-between">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">管理画面</h1>
+          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">管���画面</h1>
           <button
             onClick={() => setIsLoggedIn(false)}
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-sm hover:bg-accent hover:text-accent-foreground"

@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Club {
+  id              String    @id @default(cuid())
+  name            String
+  location        String
+  color           String    @default("#FF5733")
+  shortDescription String
+  description     String?
+  memberCount     Int       @default(0)
+  activityDays    String?
+  activityHours   String?
+  activityLocation String?
+  fee             String?
+  contactPerson   String?
+  email           String?
+  phone           String?
+  website         String?
+  imageUrl        String?
+  galleryImages   Json?     // ギャラリー画像をJSONとして保存
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  schedules       Schedule[]
+}
+
+model Schedule {
+  id        String   @id @default(cuid())
+  date      String
+  time      String
+  location  String
+  details   String?
+  isPublic  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId    String
+}
+
+model Announcement {
+  id          String   @id @default(cuid())
+  date        String
+  title       String
+  summary     String
+  content     String
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
